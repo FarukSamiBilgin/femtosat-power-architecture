@@ -56,7 +56,7 @@ These are analytical, first-order estimates from the draft; circuit-level result
 | PSIM / MATLAB models | Exploratory design files, not a validated hardware model |
 | UI | Visual prototype; values shown are illustrative, not telemetry |
 
-AI assistance: AI coding assistants were used for code development and for adversarial review. All load-bearing results were re-derived by independent methods and checked by automated tests; the author is responsible for every claim.
+AI assistance: AI coding assistants were used for code development and for adversarial review. This repository has no automated test suite; the drafts and thesis are presented as written, and the author is responsible for every claim.
 
 ## License
 
