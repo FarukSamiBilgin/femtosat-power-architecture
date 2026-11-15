@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1500, initial-scale=1.0">
+<title>Space Digital Twin Mission Control – Advanced</title>
+<link href="https://fonts.googleapis.com/css?family=Orbitron:700,900|Space+Mono:400,700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<style>
+body {
+    background: radial-gradient(ellipse at center, #1e2247 0%, #121425 60%, #040a1a 100%);
+    color: #e4f1fe;
+    font-family: 'Space Mono', 'Orbitron', 'Courier New', monospace;
+    margin:0; padding:0;
+}
+h2 {
+    color: #99fcff;
+    text-shadow: 0 0 26px #3fcbff, 0 0 8px #fff, 0 0 5px #2e9fff;
+    font-family: 'Orbitron', 'Space Mono', monospace;
+    letter-spacing: 0.07em;
+    margin-bottom: 28px;
+    font-size: 2.15em;
+    text-align: center;
+    margin-top: 20px;
+    filter: drop-shadow(0 0 24px #66faff) drop-shadow(0 0 9px #fff);
+}
+.flexrow { display: flex; flex-wrap: wrap; gap: 26px; justify-content: center; margin-top: 8px;}
+.block {
+    background: rgba(27,34,69, 0.99);
+    border-radius: 22px;
+    box-shadow: 0 0 34px 8px #38fffb2f, 0 1px 16px #071326cc;
+    border: 2px solid #42e6fd38;
+    margin: 14px 0; padding: 31px 25px 24px 25px;
+    transition: box-shadow 0.2s; min-width:340px; max-width:455px;
+}
+.block:hover { box-shadow: 0 0 52px 11px #55e0ff66, 0 1px 18px #141f39; border: 2.2px solid #52fffabf;}
+.gauge-wrap {display: flex; gap: 18px; justify-content:center;}
+.gauge {
+    background: #191c2b; border-radius: 14px; box-shadow: 0 0 24px 4px #38fffb44, 0 2px 6px #000c;
+}
+h4 { color: #63e9ff; font-family: 'Orbitron', 'Space Mono', monospace; font-weight: bold; font-size: 1.15em;
+    letter-spacing: 0.03em; text-shadow: 0 0 8px #38fffb55; margin:0 0 12px 0; text-align: center;}
+.infobar {
+    background: rgba(27,38,59,0.82); border-radius: 10px; color: #b7fffc;
+    border: 1.4px solid #38fffb1a; font-family: 'Space Mono', monospace; margin-top:12px; font-size: 13px;
+    padding: 9px 14px; box-shadow: 0 0 8px #00fff74b;
+}
+.batbar, .scbar {
+    background: linear-gradient(90deg, #232c 0%, #232340 100%);
+    border-radius: 9px; height: 19px; margin-bottom: 3px;
+    box-shadow: 0 0 13px #ffd60060, 0 0 5px #00fff744; overflow: hidden;
+}
+.batfill {
+    background: linear-gradient(90deg, #ffd600 0%, #ffa502 90%);
+    border-radius: 9px; height: 100%; transition: width 0.4s cubic-bezier(.5,1.4,.5,1.2); box-shadow: 0 0 9px #ffd60088;
+}
+.scfill {
+    background: linear-gradient(90deg, #00fff7 30%, #7fd7c4 100%);
+    border-radius: 9px; height: 100%; transition: width 0.4s cubic-bezier(.5,1.4,.5,1.2); box-shadow: 0 0 9px #00fff788;
+}
+.svg-diagram {background: #191c2b; border-radius: 18px; box-shadow: 0 0 23px 4px #38fffb33;}
+.panel-btn {
+    background: linear-gradient(90deg, #1f283b 50%, #23b0e3 100%);
+    border: 2.2px solid #38fffb99; color: #f0fcfc;
+    font-family: 'Orbitron', 'Space Mono', monospace;
+    font-weight: 600; padding: 10px 22px; border-radius: 13px; margin-bottom: 8px;
+    letter-spacing: 0.05em; box-shadow: 0 0 13px #38fffb44; font-size: 1em;
+}
+.panel-btn:hover {
+    background: linear-gradient(90deg,#23b0e3 0%, #1f283b 100%);
+    color: #fff; box-shadow: 0 0 25px #38fffb88;
+}
+.timeline {background: #191c2b; color: #81ffec; border-radius: 12px;
+    border: 1.5px solid #38fffb2c; margin-top:8px; font-size:13px; box-shadow: 0 0 7px #38fffb1c; padding: 8px 10px;}
+.log-panel {background:#191c2b; color:#b1fff7; border-radius:11px; font-size:12px; padding:11px 9px;
+    margin-top:12px; max-height:120px; overflow:auto; border: 1.2px solid #38fffb11; box-shadow: 0 0 10px #38fffb11;}
+.ai-comment { font-size: 13px; color: #a55eea; margin-top: 7px;}
+#sat3dview {background:#151828; border-radius:13px; box-shadow:0 0 14px 2px #38fffb44;}
+.svg-diagram {margin-bottom:8px;}
+@media (max-width: 1150px) {.flexrow {flex-direction:column;align-items:center;} .block {width:96vw;max-width:97vw;}}
+svg .glow {filter: drop-shadow(0 0 4px #38fffb) drop-shadow(0 0 11px #ffd60077);}
+#satSel {font-size:1.07em; font-family:'Orbitron',monospace; border-radius:8px; border:1.4px solid #00fff7aa; background:#101828; color:#00fff7; padding:5px 8px;}
+#modEdit {margin-top:7px; font-family:'Space Mono',monospace; font-size:11px;}
+.replay-btn {background:#0a1129;color:#a5fffd;border:1.1px solid #38fffb88;padding:4px 12px;border-radius:7px;font-family:'Orbitron',monospace;cursor:pointer;}
+.tooltip {position:absolute;background:#232c55dd;color:#fff;padding:7px 13px;font-size:13px;border-radius:9px;border:1.3px solid #38fffb88;z-index:9001;pointer-events:none;}
+</style>
+</head>
+<body>
+<h2>🛰️ SPACE DIGITAL TWIN – ADVANCED PANEL</h2>
+<div style="text-align:center;margin-bottom:15px;">
+    <label for="satSel" style="color:#68f4ff;font-family:'Orbitron';letter-spacing:0.03em;font-size:1.13em;">Nanosat Seç: </label>
+    <select id="satSel">
+        <option>Nano-Alpha</option>
+        <option>Nano-Beta</option>
+        <option>Nano-Gamma</option>
+    </select>
+    <button class="replay-btn" onclick="playReplay()">⏪ Replay</button>
+</div>
+<div class="flexrow">
+    <div class="block">
+        <h4>Aktif Fiziksel Durum (Canlı Gauge)</h4>
+        <div class="gauge-wrap">
+            <canvas id="tempMap" class="gauge"></canvas>
+            <canvas id="magMap" class="gauge"></canvas>
+            <canvas id="radMap" class="gauge"></canvas>
+        </div>
+        <div style="margin-top:11px;">
+            <span style="font-size:18px;">🌡️</span> Sıcaklık: <span id="tempVal"></span> °C<br>
+            <span style="font-size:18px;color:#ff5151;">🧲</span> Manyetik Alan: <span id="magVal"></span> μT<br>
+            <span style="font-size:18px;color:#ffc107;">☢️</span> Radyasyon: <span id="radVal"></span> μSv/h
+        </div>
+    </div>
+    <div class="block">
+        <h4>3D NanoSat Model (Dinamik)</h4>
+        <div id="sat3dview" style="width:185px;height:120px; margin:0 auto;"></div>
+        <div class="infobar" style="margin-top:18px;">Mod: <span id="modeName">STANDBY</span> | Panel Açı: <span id="panelAngle">0</span>°</div>
+        <div class="batbar"><div class="batfill" id="batFill" style="width:90%"></div></div>
+        <div style="font-size:13px; margin-bottom:6px; color:#ffd600;">Batarya Doluluk: <span id="batVal"></span> %</div>
+        <div class="scbar"><div class="scfill" id="scFill" style="width:80%"></div></div>
+        <div style="font-size:13px;color:#38fffb;">Süperkapasitör Doluluk: <span id="scVal"></span> %</div>
+    </div>
+    <div class="block">
+        <h4>Enerji Akış Diyagramı (SVG, Hover Bilgi)</h4>
+        <svg id="svgDiagram" class="svg-diagram" width="300" height="180"></svg>
+        <div class="infobar" id="energyInfo"></div>
+        <div id="tooltip" class="tooltip" style="display:none;"></div>
+    </div>
+    <div class="block">
+        <h4>3D Yörünge & Güneş Paneli Işık</h4>
+        <canvas id="orbitView" width="180" height="130"></canvas>
+        <div class="infobar" id="orbitInfo"></div>
+    </div>
+</div>
+<div class="flexrow">
+    <div class="block" style="min-width:280px;">
+        <h4>Görev Modu Takvimi</h4>
+        <div id="modTimer" class="infobar"></div>
+        <div id="modHistory" class="timeline"></div>
+        <div class="ai-comment" id="aiAdvice"></div>
+        <div id="modEdit">
+            <b>Senaryo Editör:</b><br>
+            <input id="modSeq" value="standby,nominal,burst,scienceBurst,recharge,ultraSave,standby" size="48">
+            <button class="replay-btn" onclick="applyModSeq()">Uygula</button>
+        </div>
+    </div>
+    <div class="block" style="min-width:350px;">
+        <h4>Enerji Analitiği & Öngörü</h4>
+        <div class="chartbox"><canvas id="socChart" width="230" height="60"></canvas></div>
+        <div class="chartbox"><canvas id="powerChart" width="230" height="60"></canvas></div>
+        <div class="infobar" id="energyForecast"></div>
+        <button class="panel-btn" onclick="playScenario()">▶ Play Scenario (48h)</button>
+        <div id="scenarioStatus" class="infobar"></div>
+    </div>
+    <div class="block" style="min-width:280px;">
+        <h4>Telemetri & Event Log</h4>
+        <button class="panel-btn" onclick="exportLog()">Export Log (CSV)</button>
+        <button class="panel-btn" onclick="searchLog()">Search Log</button>
+        <div id="logSearchRes" class="infobar"></div>
+        <div class="log-panel" id="eventLogBox"></div>
+        <div class="ai-comment" id="commStatus"></div>
+    </div>
+</div>
+<div class="flexrow" style="margin-top:18px;">
+    <button class="panel-btn" onclick="setMissionMode('standby')">STANDBY</button>
+    <button class="panel-btn" onclick="setMissionMode('nominal')">NOMINAL</button>
+    <button class="panel-btn" onclick="setMissionMode('burst')">BURST</button>
+    <button class="panel-btn" onclick="setMissionMode('recharge')">RECHARGE</button>
+    <button class="panel-btn" onclick="setMissionMode('fault')">FAULT</button>
+    <button class="panel-btn" onclick="setMissionMode('ultraSave')">ULTRA SAVE</button>
+    <button class="panel-btn" onclick="setMissionMode('scienceBurst')">SCIENCE BURST</button>
+    <button class="panel-btn" onclick="setMissionMode('emergencyCharge')">EMERG. CHARGE</button>
+</div>
+<script>
+/* --------- ANA OOP, MULTI-SAT, REPLAY, HOVER, MOD SEQ --------- */
+class PowerProfile {
+    constructor(name, params) { Object.assign(this, params); this.name = name; }
+    totalLoad() { return Object.values(this.load).reduce((a,b)=>a+b,0);}
+}
+const allProfiles = {
+  standby: new PowerProfile("standby", {rtg:8, pv:0.1, bat:0, sc:0, load:{cpu:2,rf:0,sensor:0.8,sup:0.4}, ai:"RTG ile minimum hayatta kalma.", anomaly:"OK"}),
+  nominal: new PowerProfile("nominal", {rtg:8, pv:35, bat:0.6, sc:0.6, load:{cpu:5,rf:6,sensor:4,sup:2}, ai:"RTG+PV nominal yükte.", anomaly:"OK"}),
+  burst: new PowerProfile("burst", {rtg:8, pv:0, bat:30, sc:120, load:{cpu:8,rf:50,sensor:5,sup:3}, ai:"SC ve pil tüm pik yükte.", anomaly:"Burst yük!"}),
+  recharge: new PowerProfile("recharge", {rtg:8, pv:100, bat:20, sc:35, load:{cpu:2,rf:1,sensor:2,sup:1}, ai:"Depolama şarjda.", anomaly:"Şarjda"}),
+  fault: new PowerProfile("fault", {rtg:4, pv:0, bat:0, sc:0, load:{cpu:0.2,rf:0,sensor:0.2,sup:0.1}, ai:"FAULT: Kritik hata.", anomaly:"FAULT"}),
+  ultraSave: new PowerProfile("ultraSave", {rtg:6, pv:0, bat:0, sc:0, load:{cpu:0.5,rf:0,sensor:0.3,sup:0.1}, ai:"Ultra enerji tasarrufu.", anomaly:"LOW POWER"}),
+  scienceBurst: new PowerProfile("scienceBurst", {rtg:8, pv:20, bat:25, sc:80, load:{cpu:12,rf:20,sensor:24,sup:3}, ai:"Bilim patlaması!", anomaly:"Science Burst"}),
+  emergencyCharge: new PowerProfile("emergencyCharge", {rtg:12, pv:50, bat:30, sc:30, load:{cpu:1,rf:0,sensor:1,sup:0.3}, ai:"Acil şarj.", anomaly:"EM CHARGE"})
+};
+let satellites = [
+    {name:"Nano-Alpha",state:{missionMode:"standby", batSoC:90, scSoC:80, socHistory:[], powHistory:[], modHistory:[], eventLog:[]}},
+    {name:"Nano-Beta",state:{missionMode:"nominal", batSoC:95, scSoC:87, socHistory:[], powHistory:[], modHistory:[], eventLog:[]}},
+    {name:"Nano-Gamma",state:{missionMode:"ultraSave", batSoC:52, scSoC:24, socHistory:[], powHistory:[], modHistory:[], eventLog:[]}}
+];
+let satIdx=0, missionMode="standby", modeStart=Date.now(), modeDur=120000, modHistory=[], eventLog=[];
+let batSoC=90, scSoC=80, socHistory=[], powHistory=[], commErr=0, commOk=0;
+let temp=18, mag=43, rad=68, searchTerm="", replaying=false, replayData=[];
+let modSeq = ["standby","nominal","burst","scienceBurst","recharge","ultraSave","standby"];
+
+document.getElementById('satSel').addEventListener('change',()=>{
+    satIdx=document.getElementById('satSel').selectedIndex; switchSatellite();
+});
+function switchSatellite() {
+    let s = satellites[satIdx].state;
+    missionMode = s.missionMode;
+    batSoC = s.batSoC; scSoC = s.scSoC;
+    socHistory = s.socHistory; powHistory = s.powHistory;
+    modHistory = s.modHistory; eventLog = s.eventLog;
+    setMissionMode(missionMode,true); updateAll();
+}
+function saveSatellite() {
+    let s = satellites[satIdx].state;
+    s.missionMode = missionMode;
+    s.batSoC = batSoC; s.scSoC = scSoC;
+    s.socHistory = socHistory; s.powHistory = powHistory;
+    s.modHistory = modHistory; s.eventLog = eventLog;
+}
+function drawHeatGauge(val, min, max, ctx, colorScale, label) {
+  ctx.clearRect(0,0,70,60);
+  let frac = Math.max(0, Math.min(1, (val-min)/(max-min)));
+  let color = colorScale(frac);
+  ctx.fillStyle="#222"; ctx.fillRect(0,0,70,60);
+  ctx.fillStyle=color; ctx.fillRect(10,16,48,33);
+  ctx.font="bold 11px monospace"; ctx.fillStyle="#00fff7";
+  ctx.fillText(label,11,54);
+  ctx.fillStyle="#fff"; ctx.font="bold 14px monospace";
+  ctx.fillText(val.toFixed(1),20,36);
+}
+function tempColor(f) {if(f<0.2)return"#00f";if(f<0.4)return"#4ef";if(f<0.65)return"#ffd600";if(f<0.85)return"#ff8000";return"#ff4757";}
+function magColor(f){return `rgb(${Math.round(70+150*f)},${Math.round(240-90*f)},${Math.round(130+70*f)})`;}
+function radColor(f){return f<0.5?"#2ed573":"#ff4757";}
+function updateGauges(){
+  drawHeatGauge(temp,-20,60,document.getElementById('tempMap').getContext('2d'),tempColor,"Temp");
+  drawHeatGauge(mag,0,100,document.getElementById('magMap').getContext('2d'),magColor,"Mag");
+  drawHeatGauge(rad,0,120,document.getElementById('radMap').getContext('2d'),radColor,"Rad");
+  document.getElementById('tempVal').textContent=temp.toFixed(1);
+  document.getElementById('magVal').textContent=mag.toFixed(1);
+  document.getElementById('radVal').textContent=rad.toFixed(1);
+}
+setInterval(()=>{
+  temp+=(-0.3+Math.random()*0.8); if(temp<-15)temp=-15;if(temp>60)temp=60;
+  mag+=(-0.4+Math.random()*1.1); if(mag<22)mag=22;if(mag>90)mag=90;
+  rad+=(-0.9+Math.random()*2.5); if(rad<20)rad=20;if(rad>118)rad=118;
+  updateGauges();
+},1000);
+// 3D Model
+let scene=new THREE.Scene(),cam=new THREE.PerspectiveCamera(60,1.6,1,1000),rend=new THREE.WebGLRenderer({antialias:true});
+rend.setSize(185,120);document.getElementById('sat3dview').appendChild(rend.domElement);
+let cube=new THREE.Mesh(new THREE.BoxGeometry(38,18,18),new THREE.MeshLambertMaterial({color:0x00ffff}));
+let panel=new THREE.Mesh(new THREE.BoxGeometry(2,26,14),new THREE.MeshLambertMaterial({color:0xffd600}));
+panel.position.set(20,0,0); scene.add(cube); scene.add(panel);
+cam.position.set(60,15,100); cam.lookAt(0,0,0);
+let light=new THREE.PointLight(0xffffff,1,230); light.position.set(120,140,100);scene.add(light);
+function animate3D(){
+    cube.rotation.y+=0.018; 
+    let panelAngle = Math.sin(Date.now()/1100)*0.3;
+    panel.rotation.z = missionMode=="scienceBurst"?panelAngle*2:panelAngle;
+    panel.material.color.setHSL(0.15,0.8,missionMode=="burst"?0.22:0.6);
+    if(missionMode=="burst"||missionMode=="scienceBurst") cube.material.color.setHex(0xff4757); else cube.material.color.setHex(0x00ffff);
+    rend.render(scene,cam);
+    document.getElementById('panelAngle').textContent=(panel.rotation.z*57.3).toFixed(1);
+    requestAnimationFrame(animate3D);
+}
+animate3D();
+function showTooltip(evt, msg){
+    let tip=document.getElementById('tooltip'); tip.innerHTML=msg; tip.style.display="block";
+    tip.style.left=evt.clientX+10+"px"; tip.style.top=evt.clientY-10+"px";
+}
+function hideTooltip(){document.getElementById('tooltip').style.display="none";}
+function updateSVGDiagram(){
+    let svg = document.getElementById('svgDiagram');
+    svg.innerHTML="";
+    let mk=(x,y,w,h,t,c)=>`<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="8" fill="${c}" stroke="#00fff7" stroke-width="2"/><text x="${x+7}" y="${y+h/2+3}" fill="#222" font-size="13" font-family="monospace">${t}</text>`;
+    svg.innerHTML += mk(12,36,60,32,"RTG","#fffc") + mk(12,82,60,32,"PV","#ffd600") + mk(12,128,60,26,"Harv.","#00ffff") +
+    mk(92,60,55,44,"DC/DC","#333") + mk(163,25,56,32,"Bat","#ffd600") + mk(163,122,56,32,"SC","#00fff7") +
+    `<ellipse cx="258" cy="78" rx="23" ry="33" fill="#222" stroke="#ff4757" stroke-width="3"/><text x="245" y="81" fill="#fff" font-size="13" font-family="monospace">Yük</text>`;
+    let p = allProfiles[missionMode];
+    let ok = (x1,y1,x2,y2,v,c,n,tip)=>`<path class="glow" d="M${x1},${y1} L${x2},${y2}" stroke="${c}" stroke-width="${v}" fill="none" marker-end="url(#arrow)" onmousemove="showTooltip(event,'${tip}')" onmouseout="hideTooltip()"/>`;
+    svg.innerHTML += `<defs><marker id="arrow" markerWidth="10" markerHeight="10" refX="10" refY="5" orient="auto"><polygon points="0 0, 10 5, 0 10" fill="#00fff7"/></marker></defs>`;
+    svg.innerHTML += ok(72,52,92,72, 2+p.rtg/7, "#ff4757", "rtg", "RTG: Radyoizotop güç çıkışı");
+    svg.innerHTML += ok(72,98,92,78, 2+p.pv/40, "#ffd600", "pv", "PV: Güneş paneli çıkışı");
+    svg.innerHTML += ok(72,141,92,90, 2+(p.bat+p.sc)/50, "#00fff7", "harv", "Harvester: Titreşim/ısı RF toplayıcı");
+    svg.innerHTML += ok(147,81,163,41, 2+p.bat/18, "#ffd600", "bat", "Pil şarj akışı");
+    svg.innerHTML += ok(147,98,163,138, 2+p.sc/18, "#00fff7", "sc", "Süperkapasitör şarj akışı");
+    svg.innerHTML += ok(219,41,246,61, 2+p.bat/18, "#ffd600", "bat", "Pil doğrudan yük beslemesi");
+    svg.innerHTML += ok(219,138,246,138, 2+p.sc/18, "#00fff7", "sc", "SC doğrudan yük beslemesi");
+    svg.innerHTML += ok(219,61,245,78, 3+p.bat/10, "#ff4757", "bat", "Pilden yük (ani boşalma)");
+    svg.innerHTML += ok(219,138,245,78, 3+p.sc/10, "#00fff7", "sc", "SC'den yük (burst/pik)");
+    svg.innerHTML += `<circle cx="245" cy="78" r="12" fill="none" stroke="#fff" stroke-width="2" onmousemove="showTooltip(event,'Bu yük, ani veri iletimi sırasında aktif olur!')" onmouseout="hideTooltip()"/>`;
+    document.getElementById('energyInfo').textContent="Güç akışları: Ok üzerine gelince bilgi al.";
+}
+setInterval(updateSVGDiagram,1100);
+function drawOrbitView(){
+    let ctx = document.getElementById('orbitView').getContext('2d');
+    ctx.clearRect(0,0,180,130);
+    ctx.strokeStyle="#00aaff"; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.arc(70,70,35,0,2*Math.PI); ctx.stroke();
+    ctx.fillStyle="#23f9"; ctx.beginPath(); ctx.arc(70,70,15,0,2*Math.PI); ctx.fill();
+    let theta = ((Date.now()/7000)%1)*2*Math.PI;
+    let satX = 70+35*Math.cos(theta), satY=70+35*Math.sin(theta);
+    ctx.fillStyle="#ffd600"; ctx.beginPath(); ctx.arc(130,30,10,0,2*Math.PI); ctx.fill();
+    ctx.fillStyle="#fff"; ctx.beginPath(); ctx.arc(satX,satY,6,0,2*Math.PI); ctx.fill();
+    let sunAngle = Math.atan2(30-satY,130-satX)*57.3;
+    ctx.strokeStyle="#ffd600"; ctx.beginPath();
+    ctx.moveTo(satX,satY); ctx.lineTo(130,30); ctx.stroke();
+    document.getElementById('orbitInfo').textContent=`Panel Güneş Açısı: ${(sunAngle).toFixed(1)}°`;
+}
+setInterval(drawOrbitView,1000);
+function setMissionMode(mode,auto){
+    if(!allProfiles[mode])return;
+    missionMode=mode; modeStart=Date.now();
+    document.getElementById('modeName').textContent=mode.toUpperCase();
+    logEvent(`Mode: ${mode.toUpperCase()}`,"info");
+    modHistory.push({mode:mode,t:Date.now()});
+    if(modHistory.length>40) modHistory.shift();
+    if(!auto) showNotif("Mode changed: "+mode.toUpperCase());
+}
+function updateModTimer(){
+    let left=Math.max(0,modeDur-(Date.now()-modeStart));
+    let min=Math.floor(left/60000), sec=Math.floor((left%60000)/1000);
+    document.getElementById('modTimer').textContent=`${missionMode.toUpperCase()} | Kalan: ${min}:${sec<10?'0':''}${sec}`;
+    if(left===0) setMissionMode("standby",true);
+    document.getElementById('modHistory').innerHTML=modHistory.map(m=>`<b>${m.mode}</b> (${new Date(m.t).toLocaleTimeString()})`).join(' → ');
+    let p=allProfiles[missionMode];
+    if(batSoC<18 && missionMode!=="ultraSave") document.getElementById('aiAdvice').textContent="AI: Batarya zayıf, UltraSave önerilir!";
+    else if(missionMode=="burst" && scSoC<12) document.getElementById('aiAdvice').textContent="AI: SC bitiyor, recharge önerilir!";
+    else document.getElementById('aiAdvice').textContent=p.ai;
+}
+setInterval(updateModTimer,1000);
+function updateSoCChart(){
+    if(socHistory.length>48) socHistory.shift(); socHistory.push(batSoC);
+    if(powHistory.length>48) powHistory.shift(); powHistory.push(allProfiles[missionMode].totalLoad());
+    let ctx = document.getElementById('socChart').getContext('2d');
+    ctx.clearRect(0,0,230,60); ctx.strokeStyle="#ffd600"; ctx.beginPath();
+    socHistory.forEach((v,i)=>ctx.lineTo(i*5,60-v*0.6)); ctx.stroke();
+    ctx.strokeStyle="#00fff7"; ctx.beginPath();
+    powHistory.forEach((v,i)=>ctx.lineTo(i*5,60-v*0.8)); ctx.stroke();
+    // Enerji tahmini
+    let timeLeft = Math.max(0,Math.floor((batSoC/(allProfiles[missionMode].totalLoad()+1))*6));
+    document.getElementById('energyForecast').textContent = "Tahmini pil ömrü: " + timeLeft + " saat";
+}
+setInterval(updateSoCChart,1300);
+function logEvent(msg, level="info") {
+    eventLog.push({t:new Date().toLocaleTimeString(),msg:msg,level:level});
+    if(eventLog.length>60) eventLog.shift();
+    updateEventLog();
+}
+function updateEventLog(){
+    let html = eventLog.filter(e=>!searchTerm||e.msg.toLowerCase().includes(searchTerm.toLowerCase()))
+        .map(ev=>`<span style="color:${ev.level=='warn'?'#ff4757':'#00ffff'}">${ev.t}</span> ${ev.msg}`).reverse().join("<br>");
+    document.getElementById('eventLogBox').innerHTML = html;
+}
+function exportLog() {
+    let data = eventLog.map(e=>`${e.t},${e.level},${e.msg}`).join("\n");
+    let blob = new Blob([data], {type:"text/csv"});
+    let a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "log.csv"; a.click();
+}
+function searchLog() {
+    let q=prompt("Aramak istediğin log anahtarı:","");
+    searchTerm=q||""; updateEventLog();
+    document.getElementById('logSearchRes').textContent="Arama: "+(q||"YOK");
+}
+function updateBattery(){
+    let p=allProfiles[missionMode];
+    if(missionMode=='burst'||missionMode=='scienceBurst'){batSoC-=Math.random()*1.6;scSoC-=Math.random()*5.5;}
+    else if(missionMode=='recharge'||missionMode=='emergencyCharge'){batSoC+=Math.random()*2.7;scSoC+=Math.random()*6.7;}
+    else if(missionMode=='nominal'){batSoC+=(p.pv>5?0.16:0.06)-Math.random()*0.13;scSoC+=0.09-Math.random()*0.19;}
+    else if(missionMode=='fault'){batSoC-=Math.random()*0.15;scSoC-=Math.random()*0.27;}
+    else if(missionMode=='ultraSave'){batSoC-=Math.random()*0.09;scSoC-=Math.random()*0.13;}
+    else {batSoC-=Math.random()*0.13;scSoC-=Math.random()*0.13;}
+    if(batSoC>100)batSoC=100;if(batSoC<0)batSoC=0;if(scSoC>100)scSoC=100;if(scSoC<0)scSoC=0;
+    document.getElementById('batFill').style.width=batSoC+"%";
+    document.getElementById('scFill').style.width=scSoC+"%";
+    document.getElementById('batVal').textContent=batSoC.toFixed(1);
+    document.getElementById('scVal').textContent=scSoC.toFixed(1);
+}
+setInterval(updateBattery,1200);
+function anomalyCheck() {
+    if(batSoC<7 && missionMode!="fault"){ setMissionMode("fault"); logEvent("Batarya <7%! FAULT'a geçildi.","warn");}
+    if(scSoC<5 && (missionMode=="burst"||missionMode=="scienceBurst")){ setMissionMode("recharge"); logEvent("SC <5%! Recharge'a geçildi.","warn");}
+    if(missionMode=="fault" && batSoC>30) { setMissionMode("standby"); logEvent("Batarya düzeldi. Standby.","info");}
+}
+setInterval(anomalyCheck,1100);
+let scenarioPlaying=false, scenarioTimer=0;
+function playScenario(){
+    if(scenarioPlaying) return;
+    scenarioPlaying=true; document.getElementById('scenarioStatus').textContent="Scenario: Çalıyor...";
+    let i=0;
+    function step(){
+        if(i>=modSeq.length){scenarioPlaying=false;document.getElementById('scenarioStatus').textContent="Scenario: Tamamlandı.";return;}
+        setMissionMode(modSeq[i]);i++;setTimeout(step,6000);}
+    step();
+}
+function applyModSeq() {
+    let mods=document.getElementById('modSeq').value.trim().split(",");
+    modSeq=mods.map(s=>s.trim()).filter(s=>!!allProfiles[s]);
+    showNotif("Yeni mod dizisi uygulandı.");
+}
+function playReplay() {
+    if(replaying) return;
+    replaying=true; document.getElementById('scenarioStatus').textContent="Replay: Çalıyor...";
+    // demo arşiv verisi (zaman serisi)
+    let data = [
+        {mode:"standby", bat:98, sc:90, temp:15, mag:41, rad:70},
+        {mode:"nominal", bat:92, sc:80, temp:17, mag:47, rad:68},
+        {mode:"burst", bat:76, sc:38, temp:24, mag:55, rad:90},
+        {mode:"scienceBurst", bat:62, sc:17, temp:28, mag:60, rad:96},
+        {mode:"recharge", bat:74, sc:42, temp:21, mag:51, rad:71},
+        {mode:"ultraSave", bat:61, sc:12, temp:16, mag:45, rad:55},
+        {mode:"standby", bat:55, sc:10, temp:13, mag:39, rad:49}
+    ];
+    let idx=0;
+    function step(){
+        if(idx>=data.length){replaying=false;document.getElementById('scenarioStatus').textContent="Replay: Tamamlandı.";return;}
+        let d=data[idx++];
+        setMissionMode(d.mode); batSoC=d.bat; scSoC=d.sc; temp=d.temp; mag=d.mag; rad=d.rad; updateAll();
+        setTimeout(step,2000);
+    }
+    step();
+}
+let notifTimeout=null;
+function showNotif(msg) {
+    if(document.getElementById('notifBox')) document.getElementById('notifBox').remove();
+    let d = document.createElement('div');
+    d.className='notif'; d.id='notifBox'; d.innerHTML=msg;
+    d.style.position="fixed";d.style.top="23px";d.style.right="35px";d.style.background="#2ed573ee";d.style.color="#fff";
+    d.style.padding="12px 20px";d.style.fontSize="14px";d.style.borderRadius="8px";d.style.zIndex=5000;
+    d.style.boxShadow="0 0 20px #2ed573cc";d.style.animation="notifIn 0.3s";
+    document.body.appendChild(d);
+    clearTimeout(notifTimeout);
+    notifTimeout = setTimeout(()=>{if(d)d.remove();},3200);
+}
+function updateAll(){updateBattery();updateGauges();updateSVGDiagram();drawOrbitView();updateModTimer();updateSoCChart();updateEventLog();saveSatellite();}
+setInterval(updateAll, 1600);
+function testBurstDischarge(){
+  let testBat=90, testSc=80, burstProfile=allProfiles['burst'];
+  for(let t=0;t<15;t++){testBat-=1;testSc-=6;}
+  if(testBat<0||testSc<0) logEvent("TEST: Burst discharge test FAILED!","warn");
+  else logEvent("TEST: Burst discharge test OK.","info");
+}
+testBurstDischarge();
+setMissionMode('standby');
+switchSatellite();
+</script>
+</body>
+</html>

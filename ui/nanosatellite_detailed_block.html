@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nanosatellite System Architecture - Optimized</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            background: #0a0a0a;
+            color: #00ff00;
+            overflow-x: auto;
+        }
+        
+        .schematic-container {
+            position: relative;
+            width: 4000px;
+            height: 3000px;
+            background: #1a1a1a;
+            border: 3px solid #00ff00;
+            margin: 0 auto;
+            padding: 40px;
+            border-radius: 10px;
+        }
+        
+        .title {
+            text-align: center;
+            color: #00ffff;
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-shadow: 0 0 15px #00ffff;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #ffff00;
+            font-size: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .system-info {
+            text-align: center;
+            color: #ffa726;
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 50px;
+            border: 2px solid #ffa726;
+            padding: 15px;
+            border-radius: 8px;
+            background: rgba(255, 167, 38, 0.1);
+        }
+        
+        .block {
+            position: absolute;
+            border: 3px solid;
+            border-radius: 12px;
+            padding: 15px;
+            font-size: 12px;
+            text-align: left;
+            background: rgba(0, 0, 0, 0.95);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 12px rgba(0, 255, 0, 0.2);
+            min-width: 240px;
+            min-height: 140px;
+        }
+        
+        .block:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px;
+            z-index: 100;
+        }
+        
+        .block-title {
+            font-weight: bold;
+            font-size: 14px;
+            margin-bottom: 10px;
+            text-align: center;
+            border-bottom: 2px solid;
+            padding-bottom: 6px;
+            text-transform: uppercase;
+        }
+        
+        .block-content {
+            line-height: 1.3;
+        }
+        
+        .block-content div {
+            margin: 3px 0;
+            font-size: 11px;
+        }
+        
+        /* Enhanced Color Schemes Based on System Architecture */
+        .power-block {
+            border-color: #ff4757;
+            color: #ff4757;
+        }
+        .power-block .block-title {
+            border-bottom-color: #ff4757;
+        }
+        
+        .mcu-block {
+            border-color: #3742fa;
+            color: #3742fa;
+        }
+        .mcu-block .block-title {
+            border-bottom-color: #3742fa;
+        }
+        
+        .sensor-block {
+            border-color: #2ed573;
+            color: #2ed573;
+        }
+        .sensor-block .block-title {
+            border-bottom-color: #2ed573;
+        }
+        
+        .comm-block {
+            border-color: #ffa502;
+            color: #ffa502;
+        }
+        .comm-block .block-title {
+            border-bottom-color: #ffa502;
+        }
+        
+        .memory-block {
+            border-color: #a55eea;
+            color: #a55eea;
+        }
+        .memory-block .block-title {
+            border-bottom-color: #a55eea;
+        }
+        
+        .protection-block {
+            border-color: #26de81;
+            color: #26de81;
+        }
+        .protection-block .block-title {
+            border-bottom-color: #26de81;
+        }
+        
+        .thermal-block {
+            border-color: #fd79a8;
+            color: #fd79a8;
+        }
+        .thermal-block .block-title {
+            border-bottom-color: #fd79a8;
+        }
+        
+        .section-header {
+            position: absolute;
+            font-size: 18px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            padding: 10px 18px;
+            border-radius: 6px;
+            background: rgba(0, 0, 0, 0.9);
+            border: 2px solid;
+            text-align: center;
+            min-width: 180px;
+        }
+        
+        /* System Bus Architecture */
+        .main-bus {
+            position: absolute;
+            background: #00ff00;
+            z-index: 8;
+            box-shadow: 0 0 10px #00ff00;
+        }
+        
+        .power-bus {
+            position: absolute;
+            background: #ff4757;
+            z-index: 7;
+            box-shadow: 0 0 8px #ff4757;
+        }
+        
+        .data-bus {
+            position: absolute;
+            background: #3742fa;
+            z-index: 6;
+            box-shadow: 0 0 8px #3742fa;
+        }
+        
+        .sensor-bus {
+            position: absolute;
+            background: #2ed573;
+            z-index: 5;
+            box-shadow: 0 0 6px #2ed573;
+        }
+        
+        .bus-h { height: 4px; }
+        .bus-v { width: 4px; }
+        
+        .connection-node {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: #ffffff;
+            border-radius: 50%;
+            margin: -5px;
+            z-index: 20;
+            box-shadow: 0 0 8px #ffffff;
+            border: 2px solid #000000;
+        }
+        
+        .subsystem-connector {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin: -4px;
+            z-index: 15;
+            border: 1px solid #ffffff;
+        }
+        
+        .power-connector { background: #ff4757; }
+        .data-connector { background: #3742fa; }
+        .sensor-connector { background: #2ed573; }
+        
+        .info-panel {
+            position: absolute;
+            background: rgba(0, 0, 0, 0.95);
+            border: 2px solid;
+            border-radius: 10px;
+            padding: 15px;
+            font-size: 12px;
+            min-width: 280px;
+        }
+        
+        .deployment-system {
+            position: absolute;
+            border: 3px dashed #ffff00;
+            padding: 20px;
+            background: rgba(255, 255, 0, 0.1);
+            border-radius: 12px;
+            text-align: center;
+            color: #ffff00;
+            box-shadow: 0 0 15px rgba(255, 255, 0, 0.2);
+            min-width: 350px;
+        }
+        
+        /* System Architecture Labels */
+        .bus-label {
+            position: absolute;
+            color: #ffffff;
+            font-weight: bold;
+            font-size: 10px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 4px 8px;
+            border-radius: 4px;
+            border: 1px solid;
+        }
+    </style>
+</head>
+<body>
+    <div class="title">🛰️ NANOSATELLITE SYSTEM ARCHITECTURE</div>
+    <div class="subtitle">3×3 cm Interstellar Platform - Mermaid Optimized Design</div>
+    
+    <div class="schematic-container">
+        
+        <div class="system-info">
+            Dimensions: 3×3×1 cm | Power: 0.1-7.5 mW | Mass: <15g | Mission: 20+ years | Architecture: Modular Bus System
+        </div>
+        
+        <!-- POWER MANAGEMENT SUBSYSTEM -->
+        <div class="section-header" style="top: 120px; left: 100px; color: #ff4757; border-color: #ff4757;">
+            Power Management
+        </div>
+        
+        <!-- Primary Power Sources -->
+        <div class="block power-block" style="top: 180px; left: 100px;">
+            <div class="block-title">RTG Power Core</div>
+            <div class="block-content">
+                <div><strong>Isotope:</strong> Am-241 (150mg)</div>
+                <div><strong>Output:</strong> 1.8-2.4V, 7.5mW</div>
+                <div><strong>Efficiency:</strong> 0.08%</div>
+                <div><strong>Half-life:</strong> 432 years</div>
+                <div><strong>Shielding:</strong> Integrated α-shield</div>
+                <div><strong>Status:</strong> Primary continuous</div>
+            </div>
+        </div>
+        
+        <div class="block power-block" style="top: 380px; left: 100px;">
+            <div class="block-title">Solar Array</div>
+            <div class="block-content">
+                <div><strong>Type:</strong> GaAs triple-junction</div>
+                <div><strong>Area:</strong> 0.8 cm² active</div>
+                <div><strong>Output:</strong> 0.6-2.1V, 0-35mW</div>
+                <div><strong>Efficiency:</strong> 28%</div>
+                <div><strong>Tracking:</strong> Fixed + variable</div>
+                <div><strong>Status:</strong> Distance dependent</div>
+            </div>
+        </div>
+        
+        <div class="block power-block" style="top: 580px; left: 100px;">
+            <div class="block-title">Energy Harvesting</div>
+            <div class="block-content">
+                <div><strong>Technology:</strong> Multi-physics coating</div>
+                <div><strong>Sources:</strong> RF, Thermal, Kinetic</div>
+                <div><strong>Coverage:</strong> 54 cm² total</div>
+                <div><strong>Output:</strong> 0.1-1.2mW variable</div>
+                <div><strong>Layers:</strong> 5-stack conversion</div>
+                <div><strong>Range:</strong> -50°C to +80°C</div>
+            </div>
+        </div>
+        
+        <!-- Power Conditioning -->
+        <div class="block power-block" style="top: 780px; left: 100px;">
+            <div class="block-title">Power Management IC</div>
+            <div class="block-content">
+                <div><strong>Topology:</strong> Flyback + MPPT</div>
+                <div><strong>Input:</strong> 1.8-2.4V, 7.5mW</div>
+                <div><strong>Output:</strong> 3.3V ±3%, 2.3mA</div>
+                <div><strong>Switching:</strong> 8MHz, 87.5% eff</div>
+                <div><strong>Control:</strong> PWM + adaptive</div>
+                <div><strong>Protection:</strong> OCP, thermal</div>
+            </div>
+        </div>
+        
+        <!-- Energy Storage -->
+        <div class="block power-block" style="top: 980px; left: 100px;">
+            <div class="block-title">Hybrid Storage</div>
+            <div class="block-content">
+                <div><strong>Supercap:</strong> 10mF, 0.065J</div>
+                <div><strong>LiPo:</strong> 10mAh, 0.13J</div>
+                <div><strong>Total:</strong> 0.195J capacity</div>
+                <div><strong>Size:</strong> 2×2×1.2mm stack</div>
+                <div><strong>Cycles:</strong> >100,000</div>
+                <div><strong>Temp:</strong> -20°C to +60°C</div>
+            </div>
+        </div>
+        
+        <!-- CENTRAL PROCESSING UNIT -->
+        <div class="section-header" style="top: 120px; left: 500px; color: #3742fa; border-color: #3742fa;">
+            Mission Control Unit
+        </div>
+        
+        <div class="block mcu-block" style="top: 180px; left: 500px;">
+            <div class="block-title">RISC-V Processor</div>
+            <div class="block-content">
+                <div><strong>Architecture:</strong> 32-bit RISC-V</div>
+                <div><strong>Clock:</strong> 1-10 MHz adaptive</div>
+                <div><strong>Cache:</strong> 2KB I + 1KB D</div>
+                <div><strong>Package:</strong> 3×3mm QFN</div>
+                <div><strong>Neural:</strong> Integrated AI engine</div>
+                <div><strong>Decision:</strong> 5-way matrix</div>
+                <div><strong>Protection:</strong> TMR voting</div>
+                <div><strong>Substrate:</strong> SOI radiation hard</div>
+            </div>
+        </div>
+        
+        <div class="block mcu-block" style="top: 420px; left: 500px;">
+            <div class="block-title">System Controller</div>
+            <div class="block-content">
+                <div><strong>Watchdog:</strong> Multi-level monitoring</div>
+                <div><strong>Power Mgmt:</strong> Sleep/Normal/Burst</div>
+                <div><strong>Scheduler:</strong> Real-time RTOS</div>
+                <div><strong>Interfaces:</strong> SPI, I2C, UART</div>
+                <div><strong>GPIO:</strong> 12 configurable pins</div>
+                <div><strong>Timers:</strong> 4× 32-bit precision</div>
+            </div>
+        </div>
+        
+        <!-- THERMAL MANAGEMENT -->
+        <div class="section-header" style="top: 120px; left: 900px; color: #fd79a8; border-color: #fd79a8;">
+            Thermal Control
+        </div>
+        
+        <div class="block thermal-block" style="top: 180px; left: 900px;">
+            <div class="block-title">Thermal Sensors</div>
+            <div class="block-content">
+                <div><strong>Sensors:</strong> 3× distributed RTDs</div>
+                <div><strong>Range:</strong> -55°C to +85°C</div>
+                <div><strong>Accuracy:</strong> ±0.5°C</div>
+                <div><strong>Resolution:</strong> 0.1°C</div>
+                <div><strong>Response:</strong> <2 seconds</div>
+                <div><strong>Interface:</strong> Digital I2C</div>
+            </div>
+        </div>
+        
+        <div class="block thermal-block" style="top: 380px; left: 900px;">
+            <div class="block-title">Passive Thermal</div>
+            <div class="block-content">
+                <div><strong>Coating:</strong> Multi-layer insulation</div>
+                <div><strong>Conductivity:</strong> Copper traces</div>
+                <div><strong>Radiation:</strong> Surface treatment</div>
+                <div><strong>Isolation:</strong> Component spacing</div>
+                <div><strong>Heat Spread:</strong> PCB thermal vias</div>
+            </div>
+        </div>
+        
+        <!-- SENSOR ARRAY -->
+        <div class="section-header" style="top: 120px; left: 1300px; color: #2ed573; border-color: #2ed573;">
+            Scientific Instruments
+        </div>
+        
+        <div class="block sensor-block" style="top: 180px; left: 1300px;">
+            <div class="block-title">Sensor Interface Hub</div>
+            <div class="block-content">
+                <div><strong>ADC1:</strong> 16-bit Σ-Δ magnetometer</div>
+                <div><strong>ADC2:</strong> 12-bit SAR photometer</div>
+                <div><strong>Peak Det:</strong> Particle counter</div>
+                <div><strong>Temp Int:</strong> Built-in interface</div>
+                <div><strong>Gain:</strong> 1× to 128× programmable</div>
+                <div><strong>Ref:</strong> 2.5V internal precision</div>
+                <div><strong>Sample:</strong> Up to 1 kSPS</div>
+                <div><strong>Package:</strong> 2×1mm WLCSP</div>
+            </div>
+        </div>
+        
+        <div class="block sensor-block" style="top: 420px; left: 1300px;">
+            <div class="block-title">Magnetometer</div>
+            <div class="block-content">
+                <div><strong>Type:</strong> 1-axis MEMS Hall</div>
+                <div><strong>Range:</strong> ±8 Gauss</div>
+                <div><strong>Resolution:</strong> 1nT</div>
+                <div><strong>Power:</strong> 0.1mW active</div>
+                <div><strong>Rate:</strong> 0.1Hz sampling</div>
+                <div><strong>Bandwidth:</strong> 0.05Hz</div>
+            </div>
+        </div>
+        
+        <div class="block sensor-block" style="top: 420px; left: 1600px;">
+            <div class="block-title">Photodetector</div>
+            <div class="block-content">
+                <div><strong>Active Area:</strong> 100×100μm</div>
+                <div><strong>Spectrum:</strong> 400-1100nm</div>
+                <div><strong>Responsivity:</strong> 0.6 A/W</div>
+                <div><strong>NEP:</strong> 10⁻¹⁴ W/√Hz</div>
+                <div><strong>Dark Current:</strong> <1pA</div>
+                <div><strong>Power:</strong> 0.5mW peak</div>
+            </div>
+        </div>
+        
+        <div class="block sensor-block" style="top: 620px; left: 1300px;">
+            <div class="block-title">Particle Counter</div>
+            <div class="block-content">
+                <div><strong>Type:</strong> Cosmic ray detector</div>
+                <div><strong>Energy:</strong> 1-100 MeV range</div>
+                <div><strong>Efficiency:</strong> 85% detection</div>
+                <div><strong>Dead Time:</strong> <1μs</div>
+                <div><strong>Power:</strong> 0.5mW</div>
+            </div>
+        </div>
+        
+        <div class="block sensor-block" style="top: 620px; left: 1600px;">
+            <div class="block-title">Star Tracker</div>
+            <div class="block-content">
+                <div><strong>Type:</strong> Single pixel detector</div>
+                <div><strong>FOV:</strong> 120° wide field</div>
+                <div><strong>Sensitivity:</strong> Magnitude 6 stars</div>
+                <div><strong>Response:</strong> 10ms</div>
+                <div><strong>Power:</strong> 0.3mW</div>
+            </div>
+        </div>
+        
+        <!-- COMMUNICATION SYSTEM -->
+        <div class="section-header" style="top: 120px; left: 2000px; color: #ffa502; border-color: #ffa502;">
+            Communication System
+        </div>
+        
+        <div class="block comm-block" style="top: 180px; left: 2000px;">
+            <div class="block-title">Comm Controller</div>
+            <div class="block-content">
+                <div><strong>Protocol:</strong> Custom deep space</div>
+                <div><strong>Modulation:</strong> OOK + FSK</div>
+                <div><strong>Error Correct:</strong> Reed-Solomon</div>
+                <div><strong>Data Rate:</strong> 1 kbps</div>
+                <div><strong>Laser Driver:</strong> 0-150mA</div>
+                <div><strong>Temp Comp:</strong> Integrated</div>
+                <div><strong>Mode:</strong> Burst transmission</div>
+                <div><strong>Package:</strong> 2×2mm QFN</div>
+            </div>
+        </div>
+        
+        <div class="block comm-block" style="top: 420px; left: 2000px;">
+            <div class="block-title">Laser Diode</div>
+            <div class="block-content">
+                <div><strong>Wavelength:</strong> 850nm IR</div>
+                <div><strong>Peak Power:</strong> 1W burst</div>
+                <div><strong>Continuous:</strong> 8mW reduced</div>
+                <div><strong>Burst Time:</strong> 15s maximum</div>
+                <div><strong>Divergence:</strong> 2° beam</div>
+                <div><strong>Efficiency:</strong> 45%</div>
+                <div><strong>Modulation:</strong> 10 MHz BW</div>
+            </div>
+        </div>
+        
+        <div class="block comm-block" style="top: 420px; left: 2350px;">
+            <div class="block-title">RF Beacon</div>
+            <div class="block-content">
+                <div><strong>Frequency:</strong> 437MHz</div>
+                <div><strong>Power:</strong> 2mW emergency</div>
+                <div><strong>Antenna:</strong> Wire dipole</div>
+                <div><strong>Range:</strong> 1000km LEO</div>
+                <div><strong>Modulation:</strong> FSK</div>
+                <div><strong>Rate:</strong> 1Hz beacon</div>
+                <div><strong>Callsign:</strong> Encoded ID</div>
+            </div>
+        </div>
+        
+        <!-- MEMORY & STORAGE -->
+        <div class="section-header" style="top: 120px; left: 2750px; color: #a55eea; border-color: #a55eea;">
+            Data Storage
+        </div>
+        
+        <div class="block memory-block" style="top: 180px; left: 2750px;">
+            <div class="block-title">Memory Controller</div>
+            <div class="block-content">
+                <div><strong>Primary:</strong> 128KB EEPROM</div>
+                <div><strong>Secondary:</strong> 64KB Flash</div>
+                <div><strong>Buffer:</strong> 8KB SRAM</div>
+                <div><strong>ECC:</strong> Hamming(8,4) code</div>
+                <div><strong>Package:</strong> 1×1mm BGA</div>
+                <div><strong>Retention:</strong> 20+ years</div>
+                <div><strong>Cycles:</strong> >100,000 write</div>
+                <div><strong>Access:</strong> <100ns</div>
+            </div>
+        </div>
+        
+        <!-- RADIATION PROTECTION -->
+        <div class="block protection-block" style="top: 420px; left: 2750px;">
+            <div class="block-title">Radiation Hardening</div>
+            <div class="block-content">
+                <div><strong>Process:</strong> SOI 130nm CMOS</div>
+                <div><strong>Isolation:</strong> Triple-well design</div>
+                <div><strong>Memory ECC:</strong> Throughout system</div>
+                <div><strong>Logic TMR:</strong> Triple voting</div>
+                <div><strong>Monitoring:</strong> Watchdog timers</div>
+                <div><strong>TID:</strong> >30 krad(Si) tolerance</div>
+                <div><strong>SEU Rate:</strong> <1/day</div>
+                <div><strong>Latch-up:</strong> Immune design</div>
+            </div>
+        </div>
+        
+        <!-- SYSTEM BUS ARCHITECTURE -->
+        <!-- Main Power Distribution Bus -->
+        <div class="main-bus bus-h" style="top: 320px; left: 380px; width: 2500px;"></div>
+        <div class="bus-label" style="top: 290px; left: 380px; border-color: #00ff00; color: #00ff00;">MAIN POWER BUS - 3.3V SYSTEM RAIL</div>
+        
+        <!-- Power Distribution Branches -->
+        <div class="power-bus bus-v" style="top: 320px; left: 450px; height: 200px;"></div>
+        <div class="power-bus bus-v" style="top: 320px; left: 650px; height: 200px;"></div>
+        <div class="power-bus bus-v" style="top: 320px; left: 1050px; height: 200px;"></div>
+        <div class="power-bus bus-v" style="top: 320px; left: 1500px; height: 200px;"></div>
+        <div class="power-bus bus-v" style="top: 320px; left: 2150px; height: 200px;"></div>
+        <div class="power-bus bus-v" style="top: 320px; left: 2850px; height: 200px;"></div>
+        
+        <!-- Data Communication Bus -->
+        <div class="data-bus bus-h" style="top: 350px; left: 650px; width: 2200px;"></div>
+        <div class="bus-label" style="top: 360px; left: 650px; border-color: #3742fa; color: #3742fa;">DATA BUS - SPI/I2C</div>
+        
+        <!-- Sensor Network Bus -->
+        <div class="sensor-bus bus-h" style="top: 380px; left: 1050px; width: 800px;"></div>
+        <div class="bus-label" style="top: 390px; left: 1050px; border-color: #2ed573; color: #2ed573;">SENSOR NETWORK</div>
+        
+        <!-- System Connection Nodes -->
+        <div class="connection-node" style="top: 320px; left: 450px;"></div>
+        <div class="connection-node" style="top: 320px; left: 650px;"></div>
+        <div class="connection-node" style="top: 320px; left: 1050px;"></div>
+        <div class="connection-node" style="top: 320px; left: 1500px;"></div>
+        <div class="connection-node" style="top: 320px; left: 2150px;"></div>
+        <div class="connection-node" style="top: 320px; left: 2850px;"></div>
+        
+        <!-- Subsystem Connectors -->
+        <div class="subsystem-connector power-connector" style="top: 350px; left: 650px;"></div>
+        <div class="subsystem-connector data-connector" style="top: 350px; left: 1500px;"></div>
+        <div class="subsystem-connector sensor-connector" style="top: 380px; left: 1500px;"></div>
+        
+        <!-- DEPLOYMENT SYSTEM -->
+        <div class="deployment-system" style="top: 1300px; left: 50%; transform: translateX(-50%);">
+            <div style="font-weight: bold; font-size: 20px; margin-bottom: 12px;">🚀 DEPLOYMENT SYSTEM</div>
+            <div style="font-size: 14px;"><strong>Light Sail:</strong> 4×4m deployable reflector</div>
+            <div style="font-size: 14px;"><strong>Material:</strong> Aluminized Mylar film</div>
+            <div style="font-size: 14px;"><strong>Deployment:</strong> Spring-loaded mechanism</div>
+            <div style="margin: 8px 0; font-size: 13px;">• Photon pressure propulsion</div>
+            <div style="margin: 8px 0; font-size: 13px;">• Communication signal amplification</div>
+            <div style="margin: 8px 0; font-size: 13px;">• Thermal regulation surface</div>
+            <div style="font-size: 14px;"><strong>Control:</strong> Attitude adjustment system</div>
+        </div>
+        
+        <!-- SYSTEM PERFORMANCE METRICS -->
+        <div class="info-panel" style="top: 1600px; left: 150px; color: #00ffff; border-color: #00ffff;">
+            <div style="font-weight: bold; font-size: 16px; margin-bottom: 12px;">⚡ SYSTEM PERFORMANCE</div>
+            <div style="font-size: 13px;">• Power Efficiency: 85.6% overall</div>
+            <div style="font-size: 13px;">• Component Count: <50 total</div>
+            <div style="font-size: 13px;">• PCB Technology: 4-layer HDI</div>
+            <div style="font-size: 13px;">• Operating Range: -50°C to +80°C</div>
+            <div style="font-size: 13px;">• Mission Duration: 20+ years</div>
+            <div style="font-size: 13px;">• Radiation Tolerance: >30 krad(Si)</div>
+            <div style="font-size: 13px;">• System Mass: <15 grams</div>
+            <div style="font-size: 13px;">• Deployment Success: >95%</div>
+            <div style="font-size: 13px;">• Data Integrity: 99.9%</div>
+            <div style="font-size: 13px;">• Bus Architecture: Redundant</div>
+        </div>
+        
+        <!-- MISSION OPERATIONS -->
+        <div class="info-panel" style="top: 1600px; right: 150px; color: #ffa502; border-color: #ffa502;">
+            <div style="font-weight: bold; font-size: 16px; margin-bottom: 12px;">🎯 MISSION PROFILE</div>
+            <div style="font-size: 13px;">• Hibernate Mode: 0.103 mW</div>
+            <div style="font-size: 13px;">• Normal Operations: 0.407 mW</div>
+            <div style="font-size: 13px;">• Science Collection: 6.548 mW</div>
+            <div style="font-size: 13px;">• Communication Burst: 8 mW</div>
+            <div style="font-size: 13px;">• Emergency Beacon: 22.3 mW</div>
+            <div style="font-size: 13px;">• Data Collection: 1MB/day</div>
+            <div style="font-size: 13px;">• Transmission: 1×/week</div>
+            <div style="font-size: 13px;">• Mission Life: 20 years</div>
+            <div style="font-size: 13px;">• Trajectory: Interstellar</div>
+            <div style="font-size: 13px;">• Navigation: Autonomous</div>
+        </div>
+        
+        <!-- SYSTEM ARCHITECTURE DIAGRAM -->
+        <div class="info-panel" style="top: 1900px; left: 50%; transform: translateX(-50%); color: #26de81; border-color: #26de81; width: 400px;">
+            <div style="font-weight: bold; font-size: 16px; margin-bottom: 12px; text-align: center;">🏗️ ARCHITECTURE OVERVIEW</div>
+            <div style="font-size: 13px;">• Modular Bus System Design</div>
+            <div style="font-size: 13px;">• Redundant Power Distribution</div>
+            <div style="font-size: 13px;">• Fault-Tolerant Communication</div>
+            <div style="font-size: 13px;">• Real-Time Sensor Integration</div>
+            <div style="font-size: 13px;">• Adaptive Power Management</div>
+            <div style="font-size: 13px;">• Radiation-Hardened Electronics</div>
+            <div style="font-size: 13px;">• Autonomous Decision Making</div>
+            <div style="font-size: 13px;">• Multi-Layer System Protection</div>
+            <div style="font-size: 13px;">• Scalable Interface Design</div>
+            <div style="font-size: 13px;">• Deep Space Optimized</div>
+        </div>
+        
+    </div>
+    
+    <script>
+        // Enhanced System Interaction
+        document.querySelectorAll('.block').forEach(block => {
+            block.addEventListener('click', function() {
+                const title = this.querySelector('.block-title').textContent;
+                const content = Array.from(this.querySelectorAll('.block-content div'))
+                    .map(div => div.textContent)
+                    .join('\n');
+                
+                // System-specific information based on block type
+                let systemInfo = "";
+                if (this.classList.contains('power-block')) {
+                    systemInfo = "\n🔋 POWER SUBSYSTEM\nCritical for mission survival\nRedundant power sources\nAdaptive power management";
+                } else if (this.classList.contains('mcu-block')) {
+                    systemInfo = "\n🧠 CENTRAL PROCESSING\nMission control center\nAI-driven decisions\nFault-tolerant operation";
+                } else if (this.classList.contains('sensor-block')) {
+                    systemInfo = "\n🔬 SCIENTIFIC INSTRUMENTS\nData collection sensors\nHigh-precision measurements\nSpace environment analysis";
+                } else if (this.classList.contains('comm-block')) {
+                    systemInfo = "\n📡 COMMUNICATION SYSTEM\nDeep space communication\nLaser + RF redundancy\nData transmission to Earth";
+                } else if (this.classList.contains('memory-block')) {
+                    systemInfo = "\n💾 DATA STORAGE\nLong-term data retention\nRadiation-hardened memory\nError correction codes";
+                } else if (this.classList.contains('protection-block')) {
+                    systemInfo = "\n🛡️ RADIATION PROTECTION\nSpace environment hardening\nSingle-event upset immunity\nLong-term reliability";
+                } else if (this.classList.contains('thermal-block')) {
+                    systemInfo = "\n🌡️ THERMAL MANAGEMENT\nTemperature monitoring\nPassive thermal control\nComponent protection";
+                }
+                
+                alert(`${title}\n\n${content}${systemInfo}\n\n━━━━━━━━━━━━━━━━━━━━\nOptimized 3×3 cm nanosatellite subsystem\nMermaid architecture implementation\nClick other blocks to explore system integration`);
+            });
+        });
+        
+        // Bus System Highlighting
+        document.querySelectorAll('.main-bus, .power-bus, .data-bus, .sensor-bus').forEach(bus => {
+            bus.addEventListener('mouseenter', function() {
+                this.style.boxShadow = '0 0 20px';
+                this.style.filter = 'brightness(1.5)';
+                this.style.transform = 'scaleY(1.5)';
+            });
+            
+            bus.addEventListener('mouseleave', function() {
+                this.style.boxShadow = '0 0 8px';
+                this.style.filter = 'brightness(1)';
+                this.style.transform = 'scaleY(1)';
+            });
+        });
+        
+        // Connection Node Interactions
+        document.querySelectorAll('.connection-node').forEach(node => {
+            node.addEventListener('mouseenter', function() {
+                this.style.transform = 'scale(2.5)';
+                this.style.boxShadow = '0 0 20px #ffffff';
+                this.style.background = '#ffff00';
+            });
+            
+            node.addEventListener('mouseleave', function() {
+                this.style.transform = 'scale(1)';
+                this.style.boxShadow = '0 0 8px #ffffff';
+                this.style.background = '#ffffff';
+            });
+        });
+        
+        // Section Header Effects
+        document.querySelectorAll('.section-header').forEach(header => {
+            header.addEventListener('mouseenter', function() {
+                this.style.transform = 'scale(1.1)';
+                this.style.boxShadow = '0 0 25px';
+                this.style.filter = 'brightness(1.3)';
+            });
+            
+            header.addEventListener('mouseleave', function() {
+                this.style.transform = 'scale(1)';
+                this.style.boxShadow = 'none';
+                this.style.filter = 'brightness(1)';
+            });
+        });
+        
+        // Enhanced Block Hover Effects
+        document.querySelectorAll('.block').forEach(block => {
+            block.addEventListener('mouseenter', function() {
+                this.style.zIndex = '200';
+                this.style.filter = 'brightness(1.3)';
+                this.style.borderWidth = '4px';
+                
+                // Highlight related system components
+                const blockType = this.className.split(' ')[1]; // Gets the color class
+                document.querySelectorAll(`.${blockType}`).forEach(related => {
+                    if (related !== this) {
+                        related.style.filter = 'brightness(1.1)';
+                        related.style.borderWidth = '3px';
+                    }
+                });
+            });
+            
+            block.addEventListener('mouseleave', function() {
+                this.style.zIndex = '10';
+                this.style.filter = 'brightness(1)';
+                this.style.borderWidth = '3px';
+                
+                // Reset related components
+                const blockType = this.className.split(' ')[1];
+                document.querySelectorAll(`.${blockType}`).forEach(related => {
+                    related.style.filter = 'brightness(1)';
+                    related.style.borderWidth = '3px';
+                });
+            });
+        });
+        
+        // Subsystem Connector Animations
+        document.querySelectorAll('.subsystem-connector').forEach(connector => {
+            connector.addEventListener('mouseenter', function() {
+                this.style.transform = 'scale(2)';
+                this.style.boxShadow = '0 0 15px';
+            });
+            
+            connector.addEventListener('mouseleave', function() {
+                this.style.transform = 'scale(1)';
+                this.style.boxShadow = 'none';
+            });
+        });
+        
+        // System Status Simulation
+        function simulateSystemStatus() {
+            const indicators = ['🟢', '🟡', '🔴'];
+            const statuses = ['NOMINAL', 'CAUTION', 'ALERT'];
+            
+            document.querySelectorAll('.block-title').forEach(title => {
+                const randomStatus = Math.floor(Math.random() * 100);
+                let statusIndicator = '🟢';
+                let statusText = 'NOMINAL';
+                
+                if (randomStatus > 95) {
+                    statusIndicator = '🔴';
+                    statusText = 'ALERT';
+                } else if (randomStatus > 85) {
+                    statusIndicator = '🟡';
+                    statusText = 'CAUTION';
+                }
+                
+                // Add status indicator to title on hover
+                title.parentElement.addEventListener('mouseenter', function() {
+                    if (!title.textContent.includes('🟢') && !title.textContent.includes('🟡') && !title.textContent.includes('🔴')) {
+                        title.textContent = `${statusIndicator} ${title.textContent} - ${statusText}`;
+                    }
+                });
+                
+                title.parentElement.addEventListener('mouseleave', function() {
+                    title.textContent = title.textContent.replace(/🟢|🟡|🔴/g, '').replace(/ - (NOMINAL|CAUTION|ALERT)/g, '').trim();
+                });
+            });
+        }
+        
+        // Initialize system status simulation
+        simulateSystemStatus();
+        
+        // System Health Monitoring Display
+        function displaySystemHealth() {
+            const healthPanel = document.createElement('div');
+            healthPanel.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: rgba(0, 0, 0, 0.9);
+                border: 2px solid #00ff00;
+                border-radius: 8px;
+                padding: 15px;
+                color: #00ff00;
+                font-family: 'Consolas', monospace;
+                font-size: 12px;
+                z-index: 1000;
+                min-width: 200px;
+            `;
+            
+            healthPanel.innerHTML = `
+                <div style="font-weight: bold; margin-bottom: 8px;">🛰️ SYSTEM STATUS</div>
+                <div>Power: 🟢 NOMINAL</div>
+                <div>Processing: 🟢 NOMINAL</div>
+                <div>Sensors: 🟢 NOMINAL</div>
+                <div>Comms: 🟢 NOMINAL</div>
+                <div>Memory: 🟢 NOMINAL</div>
+                <div>Thermal: 🟢 NOMINAL</div>
+                <div style="margin-top: 8px; font-size: 10px;">Mission Time: ${Math.floor(Math.random() * 365)} days</div>
+            `;
+            
+            document.body.appendChild(healthPanel);
+        }
+        
+        // Initialize system health display
+        displaySystemHealth();
+    </script>
+</body>
+</html>

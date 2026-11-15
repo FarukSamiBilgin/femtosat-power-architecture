@@ -1,0 +1,19 @@
+cff-version: 1.2.0
+message: "If you use this work, please cite it as below."
+title: "femtosat-power-architecture: energy-banking power architecture for a coin-sized photon-sail femtosatellite"
+authors:
+  - family-names: Bilgin
+    given-names: Faruk Sami
+    orcid: "https://orcid.org/0009-0001-9064-4410"
+type: software
+license: MIT
+repository-code: "https://github.com/FarukSamiBilgin/femtosat-power-architecture"
+date-released: 2026-11-15
+keywords:
+  - femtosatellite
+  - energy harvesting
+  - MPPT
+  - flyback converter
+  - boost converter
+  - RTG
+  - betavoltaic
